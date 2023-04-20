@@ -62,7 +62,7 @@ fn main() {
     // create tree
 
     for (i, j) in &frequency {
-        node_list.push(Node::new(i, *j));
+        node_list.push(Node::new(i.to_string(), *j));
     }
 
     let mut left: Node;
@@ -76,36 +76,50 @@ fn main() {
         right = node_list.pop().unwrap();
         sum = left.freq + right.freq;
 
-        node_list.push(Node::new("", sum).left(left).right(right));
+        node_list.push(Node::new("".to_string(), sum).left(left).right(right));
     }
 
-    // // create look up table
-    // let mut table = HashMap::new();
+    // create look up table
+    let mut table: HashMap<String, i64> = HashMap::new();
 
-    // for (i, v) in sorting.iter().enumerate() {
-    //     table.insert(v.0, i);
-    // }
-    // println!("{:?}", table);
+    let mut code: i64 = 0;
+
+    fn recuse_tree (node: &Node, code: &i64, table: &mut HashMap<String,i64>) {
+        if !node.l.is_none() { 
+            recuse_tree(&*node.l?, &(code << 1), table);
+        }
+        if !node.r.is_none() {
+            recuse_tree(&*node.r.unwrap(), &((code << 1) + 1), table);
+        }
+        
+        table.insert(node.symbol, *code);
+        return;
+        
+    }
+    
+    recuse_tree(&node_list[0], &code, &mut table);
+
+    //println!("{:?}", table);
 
 }
-pub struct Node<'a> {
-    symbol: &'a str,
+pub struct Node {
+    symbol: String,
     freq: i32,
-    l: Option<Box<Node<'a>>>,
-    r: Option<Box<Node<'a>>>,
+    l: Option<Box<Node>>,
+    r: Option<Box<Node>>,
 }
 
-impl<'a> Node<'a> {
-    pub fn new(symbol: &'a str, freq: i32) -> Self {
+impl<'a> Node {
+    pub fn new(symbol: String, freq: i32) -> Self {
         Node { symbol: (symbol), freq: (freq), l: (None), r: (None) }
     }
 
-    pub fn left(mut self, node: Node<'a>) -> Self {
+    pub fn left(mut self, node: Node) -> Self {
         self.l = Some(Box::new(node));
         self
     }
 
-    pub fn right(mut self, node: Node<'a>) -> Self {
+    pub fn right(mut self, node: Node) -> Self {
         self.r = Some(Box::new(node));
         self
     }
