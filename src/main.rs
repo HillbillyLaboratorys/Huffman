@@ -4,13 +4,19 @@ use std::io::Write;
 use std::collections::HashMap;
 
 fn main() {
+    // enter file paths here, ensure all \ are doubled up and the path is absolute, like "C:\\users\\your_name\\documents\\test.txt" 
+    let input_file = "C:\\work\\Huffman\\test.txt";
+
+    let out_file = "C:\\work\\Huffman\\encodded.txt";
+
+    let out_file_pair = "C:\\work\\Huffman\\encodded_pair.txt";
     
     let pairs = ["th", "he", "in", "en", "nt", "re", "er", "an", "ti", "es", "on", "at", "se", "nd", "or", "ar", "al", "te", "co", "de", "to", "ra", "et", "ed", "it", "sa", "em", "ro",
     "Th", "He", "In", "En", "Nt", "Re", "Er", "An", "Ti", "Es", "On", "At", "Se", "Nd", "Or", "Ar", "Al", "Te", "Co", "De", "To", "Ra", "Et", "Ed", "It", "Sa", "Em", "Ro",
     ];
 
     // read file contents to string
-    let mut file = File::open("C:\\work\\Huffman\\test.txt")
+    let mut file = File::open(input_file)
         .expect("File Not Found");
 
     let mut input = String::new();
@@ -33,7 +39,7 @@ fn main() {
     node_list[0].codes_recursive(&mut code, &mut table);
     //println!("{:?}", table);
 
-    // calculate and print code bit lengths 
+    // calculate and store code bit lengths 
     let mut lens: HashMap<String,i32> = HashMap::new();
 
     let mut val: i64;
@@ -84,11 +90,11 @@ fn main() {
         // encodelen += lens.get(&i.to_string());
     }
     println!("message size: {}", encodelen);
-    println!("message and table size: {}", encodelen + tab_total);
+    // println!("message and table size: {}", encodelen + tab_total);
     
 
     //create output file
-    let mut file = match File::create("C:\\work\\Huffman\\encoded.txt") {
+    let mut file = match File::create(out_file) {
         Err(why) => panic!("couldn't create file: {}", why),
         Ok(file) => file,
     };
@@ -99,9 +105,11 @@ fn main() {
         Ok(_) => println!("successfully wrote to file"),
     }
 
+    print!("\n");
+
     // frequency of charactor pairs 
     let freq_pair = count_freq_pair(&input, pairs);
-    println!("{:?} /n", freq_pair);
+    // println!("{:?} /n", freq_pair);
 
     // create tree for pairs
     let node_list_pair: Vec<Node> = generate_tree(freq_pair);
@@ -137,7 +145,7 @@ fn main() {
 
     let mut output_pair: String = String::new();
 
-    // put codes in output string
+    // put table in output string
     for (i, j) in &table_pair {
         output_pair.push_str(&i);
         output_pair.push(' ');
@@ -180,6 +188,10 @@ fn main() {
             last_let = j.to_string();
         }
     }
+    for i in huff_pair {
+        output_pair.push(' ');
+        output_pair.push_str(&i.to_string());
+    }
 
     // calculate bit length total of encodded input
     let mut encodelen_pair: i32 = 0;
@@ -194,9 +206,21 @@ fn main() {
         // encodelen += lens.get(&i.to_string());
     }
     println!("pair message size: {}", encodelen_pair);
-    println!("pair message and table size: {}", encodelen_pair + tab_total_pair);
+    // println!("pair message and table size: {}", encodelen_pair + tab_total_pair);
 
-    println!("ASKII size: {}", output_pair.len() * 8);
+    //create output file
+    let mut file = match File::create(out_file_pair) {
+        Err(why) => panic!("couldn't create file: {}", why),
+        Ok(file) => file,
+    };
+
+    // write table to file
+    match file.write_all(output_pair.as_bytes()) {
+        Err(why) => panic!("couldn't write to file: {}", why),
+        Ok(_) => println!("successfully wrote to file"),
+    }
+
+    println!("ASKII size: {}", output.len() * 8);
 }
 
 fn count_freq (input: &String) -> HashMap<String, i32> {
